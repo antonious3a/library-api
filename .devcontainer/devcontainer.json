@@ -11,7 +11,7 @@
 			"installMaven": "true",
 			"installGradle": "true"
 		},
-		"grhcr.io/devcontainers/features/sshd:1": {
+		"ghcr.io/devcontainers/features/sshd:1": {
 			"version": "latest"
 		}
 	},
