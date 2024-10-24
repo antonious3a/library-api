@@ -1,0 +1,106 @@
+server:
+  port: 9988
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  application:
+    name: pixel-test
+  config:
+    import: optional:vault://
+  cloud:
+    vault:
+      uri: ${VAULT_URI}
+      authentication: token
+      token: ${VAULT_TOKEN}
+      kv:
+        backend: key-value
+        default-context: applications
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:${POSTGRESQL_URI}/pixel-test
+    username: ${POSTGRESQL_USERNAME}
+    password: ${POSTGRESQL_PASSWORD}
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        format_sql: true
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: ${env.keycloak.realm.uri}
+          jwk-set-uri: ${env.keycloak.protocol.openid-connect}/certs
+  web:
+    resources:
+      add-mappings: false
+
+logging:
+  level:
+    hibernate:
+      sql: debug
+
+management:
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+    git:
+      mode: full
+
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    enabled-by-default: true
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+    displayRequestDuration: true
+    oauth:
+      realm: ${env.keycloak.realm.name}
+      client-id: ${OAUTH2_CLIENT_ID}
+      client-secret: ${OAUTH2_CLIENT_SECRET}
+      use-pkce-with-authorization-code-grant: true
+    path: /api/v1/docs/
+    syntax-highlight:
+      activated: true
+  api-docs:
+    path: /api/v1/docs/oas/v3
+
+env:
+  keycloak:
+    uri: ${KEYCLOAK_URI}
+    protocol:
+      openid-connect: ${env.keycloak.realm.uri}/protocol/openid-connect
+    realm:
+      name: ${KEYCLOAK_REALM_NAME}
+      uri: ${env.keycloak.uri}/realms/${env.keycloak.realm.name}
+  oauth2:
+    authorization-url: ${env.keycloak.protocol.openid-connect}/auth
+    token-url: ${env.keycloak.protocol.openid-connect}/token
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: 0.0.1
+    description: ${spring.application.name} application
